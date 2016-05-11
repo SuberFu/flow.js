@@ -537,9 +537,9 @@
      * Cancel upload of all FlowFile objects and remove them from the list.
      * @function
      */
-    cancel: function() {
+    cancel: function(event) {
       for (var i = this.files.length - 1; i >= 0; i--) {
-        this.files[i].cancel();
+        this.files[i].cancel(event);
       }
     },
 
@@ -607,12 +607,12 @@
      * @function
      * @param {FlowFile} file
      */
-    removeFile: function(file) {
+    removeFile: function(file, event) {
       for (var i = this.files.length - 1; i >= 0; i--) {
         if (this.files[i] === file) {
           this.files.splice(i, 1);
           file.abort();
-          this.fire('fileRemoved', file);
+          this.fire('fileRemoved', file, event);
         }
       }
     },
@@ -900,8 +900,8 @@
      * Cancel current upload and remove from a list
      * @function
      */
-    cancel: function() {
-      this.flowObj.removeFile(this);
+    cancel: function(event) {
+      this.flowObj.removeFile(this, event);
     },
 
     /**
