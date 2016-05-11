@@ -1,7 +1,8 @@
 /**
  * @license MIT
  */
-(function(window, document, undefined) {'use strict';
+(function(window, document, undefined) {
+  'use strict';
   // ie10+
   var ie10plus = window.navigator.msPointerEnabled;
   /**
@@ -50,7 +51,7 @@
     );
 
     if (!this.support) {
-      return ;
+      return;
     }
 
     /**
@@ -97,7 +98,7 @@
       initFileFn: null,
       readFileFn: webAPIFileRead
     };
-    
+
     /**
      * Current options
      * @type {Object}
@@ -119,7 +120,7 @@
      * @function
      * @param {MouseEvent} event
      */
-    this.onDrop = function (event) {
+    this.onDrop = function(event) {
       if ($.opts.onDropStopPropagation) {
         event.stopPropagation();
       }
@@ -138,7 +139,7 @@
      * @function
      * @param {MouseEvent} event
      */
-    this.preventEvent = function (event) {
+    this.preventEvent = function(event) {
       event.preventDefault();
     };
 
@@ -155,13 +156,13 @@
     /**
      * Set a callback for an event, possible events:
      * fileSuccess(file), fileProgress(file), fileAdded(file, event),
-     * fileRemoved(file), fileRetry(file), fileError(file, message), 
-     * complete(), progress(), error(message, file), pause()
+     * fileRetry(file), fileError(file, message), complete(),
+     * progress(), error(message, file), pause(), fileRemoved(file)
      * @function
      * @param {string} event
      * @param {Function} callback
      */
-    on: function (event, callback) {
+    on: function(event, callback) {
       event = event.toLowerCase();
       if (!this.events.hasOwnProperty(event)) {
         this.events[event] = [];
@@ -175,7 +176,7 @@
      * @param {string} [event] removes all events if not specified
      * @param {Function} [fn] removes all callbacks of event if not specified
      */
-    off: function (event, fn) {
+    off: function(event, fn) {
       if (event !== undefined) {
         event = event.toLowerCase();
         if (fn !== undefined) {
@@ -198,13 +199,13 @@
      * @return {bool} value is false if at least one of the event handlers which handled this event
      * returned false. Otherwise it returns true.
      */
-    fire: function (event, args) {
+    fire: function(event, args) {
       // `arguments` is an object, not array, in FF, so:
       args = Array.prototype.slice.call(arguments);
       event = event.toLowerCase();
       var preventDefault = false;
       if (this.events.hasOwnProperty(event)) {
-        each(this.events[event], function (callback) {
+        each(this.events[event], function(callback) {
           preventDefault = callback.apply(this, args.slice(1)) === false || preventDefault;
         }, this);
       }
@@ -219,15 +220,15 @@
      * Read webkit dataTransfer object
      * @param event
      */
-    webkitReadDataTransfer: function (event) {
+    webkitReadDataTransfer: function(event) {
       var $ = this;
       var queue = event.dataTransfer.items.length;
       var files = [];
-      each(event.dataTransfer.items, function (item) {
+      each(event.dataTransfer.items, function(item) {
         var entry = item.webkitGetAsEntry();
         if (!entry) {
           decrement();
-          return ;
+          return;
         }
         if (entry.isFile) {
           // due to a bug in Chrome's File System API impl - #149735
@@ -237,13 +238,13 @@
         }
       });
       function readDirectory(reader) {
-        reader.readEntries(function (entries) {
+        reader.readEntries(function(entries) {
           if (entries.length) {
             queue += entries.length;
             each(entries, function(entry) {
               if (entry.isFile) {
                 var fullPath = entry.fullPath;
-                entry.file(function (file) {
+                entry.file(function(file) {
                   fileReadSuccess(file, fullPath);
                 }, readError);
               } else if (entry.isDirectory) {
@@ -278,7 +279,7 @@
      * @param {FlowFile} file
      * @returns {string}
      */
-    generateUniqueIdentifier: function (file) {
+    generateUniqueIdentifier: function(file) {
       var custom = this.opts.generateUniqueIdentifier;
       if (typeof custom === 'function') {
         return custom(file);
@@ -294,13 +295,13 @@
      * @returns {boolean}
      * @private
      */
-    uploadNextChunk: function (preventEvents) {
+    uploadNextChunk: function(preventEvents) {
       // In some cases (such as videos) it's really handy to upload the first
       // and last chunk of a file quickly; this let's the server check the file's
       // metadata and determine if there's even a point in continuing.
       var found = false;
       if (this.opts.prioritizeFirstAndLastChunk) {
-        each(this.files, function (file) {
+        each(this.files, function(file) {
           if (!file.paused && file.chunks.length &&
             file.chunks[0].status() === 'pending') {
             file.chunks[0].send();
@@ -320,9 +321,9 @@
       }
 
       // Now, simply look for the next, best thing to upload
-      each(this.files, function (file) {
+      each(this.files, function(file) {
         if (!file.paused) {
-          each(file.chunks, function (chunk) {
+          each(file.chunks, function(chunk) {
             if (chunk.status() === 'pending') {
               chunk.send();
               found = true;
@@ -340,7 +341,7 @@
 
       // The are no more outstanding chunks to upload, check is everything is done
       var outstanding = false;
-      each(this.files, function (file) {
+      each(this.files, function(file) {
         if (!file.isComplete()) {
           outstanding = true;
           return false;
@@ -348,7 +349,7 @@
       });
       if (!outstanding && !preventEvents) {
         // All chunks have been uploaded, complete
-        async(function () {
+        async(function() {
           this.fire('complete');
         }, this);
       }
@@ -367,12 +368,12 @@
      *  eg: accept: 'image/*'
      * be selected (Chrome only).
      */
-    assignBrowse: function (domNodes, isDirectory, singleFile, attributes) {
+    assignBrowse: function(domNodes, isDirectory, singleFile, attributes) {
       if (typeof domNodes.length === 'undefined') {
         domNodes = [domNodes];
       }
 
-      each(domNodes, function (domNode) {
+      each(domNodes, function(domNode) {
         var input;
         if (domNode.tagName === 'INPUT' && domNode.type === 'file') {
           input = domNode;
@@ -402,16 +403,16 @@
         if (isDirectory) {
           input.setAttribute('webkitdirectory', 'webkitdirectory');
         }
-        each(attributes, function (value, key) {
+        each(attributes, function(value, key) {
           input.setAttribute(key, value);
         });
         // When new files are added, simply append them to the overall list
         var $ = this;
-        input.addEventListener('change', function (e) {
-       	  if (e.target.value) {
+        input.addEventListener('change', function(e) {
+          if (e.target.value) {
             $.addFiles(e.target.files, e);
             e.target.value = '';
-       	  }
+          }
         }, false);
       }, this);
     },
@@ -421,11 +422,11 @@
      * @function
      * @param {Element|Array.<Element>} domNodes
      */
-    assignDrop: function (domNodes) {
+    assignDrop: function(domNodes) {
       if (typeof domNodes.length === 'undefined') {
         domNodes = [domNodes];
       }
-      each(domNodes, function (domNode) {
+      each(domNodes, function(domNode) {
         domNode.addEventListener('dragover', this.preventEvent, false);
         domNode.addEventListener('dragenter', this.preventEvent, false);
         domNode.addEventListener('drop', this.onDrop, false);
@@ -437,11 +438,11 @@
      * @function
      * @param domNodes
      */
-    unAssignDrop: function (domNodes) {
+    unAssignDrop: function(domNodes) {
       if (typeof domNodes.length === 'undefined') {
         domNodes = [domNodes];
       }
-      each(domNodes, function (domNode) {
+      each(domNodes, function(domNode) {
         domNode.removeEventListener('dragover', this.preventEvent);
         domNode.removeEventListener('dragenter', this.preventEvent);
         domNode.removeEventListener('drop', this.onDrop);
@@ -454,9 +455,9 @@
      * @function
      * @returns {boolean}
      */
-    isUploading: function () {
+    isUploading: function() {
       var uploading = false;
-      each(this.files, function (file) {
+      each(this.files, function(file) {
         if (file.isUploading()) {
           uploading = true;
           return false;
@@ -470,11 +471,11 @@
      * @function
      * @returns {boolean|number}
      */
-    _shouldUploadNext: function () {
+    _shouldUploadNext: function() {
       var num = 0;
       var should = true;
       var simultaneousUploads = this.opts.simultaneousUploads;
-      each(this.files, function (file) {
+      each(this.files, function(file) {
         each(file.chunks, function(chunk) {
           if (chunk.status() === 'uploading') {
             num++;
@@ -493,7 +494,7 @@
      * Start or resume uploading.
      * @function
      */
-    upload: function () {
+    upload: function() {
       // Make sure we don't start too many uploads at once
       var ret = this._shouldUploadNext();
       if (ret === false) {
@@ -506,7 +507,7 @@
         started = this.uploadNextChunk(true) || started;
       }
       if (!started) {
-        async(function () {
+        async(function() {
           this.fire('complete');
         }, this);
       }
@@ -516,8 +517,8 @@
      * Resume uploading.
      * @function
      */
-    resume: function () {
-      each(this.files, function (file) {
+    resume: function() {
+      each(this.files, function(file) {
         file.resume();
       });
     },
@@ -526,8 +527,8 @@
      * Pause uploading.
      * @function
      */
-    pause: function () {
-      each(this.files, function (file) {
+    pause: function() {
+      each(this.files, function(file) {
         file.pause();
       });
     },
@@ -536,7 +537,7 @@
      * Cancel upload of all FlowFile objects and remove them from the list.
      * @function
      */
-    cancel: function () {
+    cancel: function() {
       for (var i = this.files.length - 1; i >= 0; i--) {
         this.files[i].cancel();
       }
@@ -548,11 +549,11 @@
      * @function
      * @returns {number}
      */
-    progress: function () {
+    progress: function() {
       var totalDone = 0;
       var totalSize = 0;
       // Resume all chunks currently being uploaded
-      each(this.files, function (file) {
+      each(this.files, function(file) {
         totalDone += file.progress() * file.size;
         totalSize += file.size;
       });
@@ -565,7 +566,7 @@
      * @param {File} file
      * @param {Event} [event] event is optional
      */
-    addFile: function (file, event) {
+    addFile: function(file, event) {
       this.addFiles([file], event);
     },
 
@@ -575,9 +576,9 @@
      * @param {FileList|Array} fileList
      * @param {Event} [event] event is optional
      */
-    addFiles: function (fileList, event) {
+    addFiles: function(fileList, event) {
       var files = [];
-      each(fileList, function (file) {
+      each(fileList, function(file) {
         // https://github.com/flowjs/flow.js/issues/55
         if ((!ie10plus || ie10plus && file.size > 0) && !(file.size % 4096 === 0 && (file.name === '.' || file.fileName === '.')) &&
           (this.opts.allowDuplicateUploads || !this.getFromUniqueIdentifier(this.generateUniqueIdentifier(file)))) {
@@ -588,14 +589,16 @@
         }
       }, this);
       if (this.fire('filesAdded', files, event)) {
-        each(files, function (file) {
+        each(files, function(file) {
           if (this.opts.singleFile && this.files.length > 0) {
             this.removeFile(this.files[0]);
           }
           this.files.push(file);
         }, this);
+        this.fire('filesSubmitted', files, event);
+      } else {
+        this.fire('filesSubmitted', [], event);
       }
-      this.fire('filesSubmitted', files, event);
     },
 
 
@@ -604,7 +607,7 @@
      * @function
      * @param {FlowFile} file
      */
-    removeFile: function (file) {
+    removeFile: function(file) {
       for (var i = this.files.length - 1; i >= 0; i--) {
         if (this.files[i] === file) {
           this.files.splice(i, 1);
@@ -620,9 +623,9 @@
      * @param {string} uniqueIdentifier
      * @returns {boolean|FlowFile} false if file was not found
      */
-    getFromUniqueIdentifier: function (uniqueIdentifier) {
+    getFromUniqueIdentifier: function(uniqueIdentifier) {
       var ret = false;
-      each(this.files, function (file) {
+      each(this.files, function(file) {
         if (file.uniqueIdentifier === uniqueIdentifier) {
           ret = file;
         }
@@ -635,9 +638,9 @@
      * @function
      * @returns {number}
      */
-    getSize: function () {
+    getSize: function() {
       var totalSize = 0;
-      each(this.files, function (file) {
+      each(this.files, function(file) {
         totalSize += file.size;
       });
       return totalSize;
@@ -648,9 +651,9 @@
      * @function
      * @returns {number}
      */
-    sizeUploaded: function () {
+    sizeUploaded: function() {
       var size = 0;
-      each(this.files, function (file) {
+      each(this.files, function(file) {
         size += file.sizeUploaded();
       });
       return size;
@@ -662,10 +665,10 @@
      * @function
      * @returns {number}
      */
-    timeRemaining: function () {
+    timeRemaining: function() {
       var sizeDelta = 0;
       var averageSpeed = 0;
-      each(this.files, function (file) {
+      each(this.files, function(file) {
         if (!file.paused && !file.error) {
           sizeDelta += file.size - file.sizeUploaded();
           averageSpeed += file.averageSpeed;
@@ -700,7 +703,7 @@
      * @type {Flow}
      */
     this.flowObj = flowObj;
-    
+
     /**
      * Used to store the bytes read
      * @type {Blob|string}
@@ -797,10 +800,10 @@
      * @link http://stackoverflow.com/questions/2779600/how-to-estimate-download-time-remaining-accurately
      * @function
      */
-    measureSpeed: function () {
+    measureSpeed: function() {
       var timeSpan = Date.now() - this._lastProgressCallback;
       if (!timeSpan) {
-        return ;
+        return;
       }
       var smoothingFactor = this.flowObj.opts.speedSmoothingFactor;
       var uploaded = this.sizeUploaded();
@@ -818,7 +821,7 @@
      * @param {string} event can be 'progress', 'success', 'error' or 'retry'
      * @param {string} [message]
      */
-    chunkEvent: function (chunk, event, message) {
+    chunkEvent: function(chunk, event, message) {
       switch (event) {
         case 'progress':
           if (Date.now() - this._lastProgressCallback <
@@ -878,14 +881,14 @@
      * Abort current upload
      * @function
      */
-    abort: function (reset) {
+    abort: function(reset) {
       this.currentSpeed = 0;
       this.averageSpeed = 0;
       var chunks = this.chunks;
       if (reset) {
         this.chunks = [];
       }
-      each(chunks, function (c) {
+      each(chunks, function(c) {
         if (c.status() === 'uploading') {
           c.abort();
           this.flowObj.uploadNextChunk();
@@ -897,7 +900,7 @@
      * Cancel current upload and remove from a list
      * @function
      */
-    cancel: function () {
+    cancel: function() {
       this.flowObj.removeFile(this);
     },
 
@@ -905,7 +908,7 @@
      * Retry aborted file upload
      * @function
      */
-    retry: function () {
+    retry: function() {
       this.bootstrap();
       this.flowObj.upload();
     },
@@ -914,7 +917,7 @@
      * Clear current chunks and slice file again
      * @function
      */
-    bootstrap: function () {
+    bootstrap: function() {
       if (typeof this.flowObj.opts.initFileFn === "function") {
         this.flowObj.opts.initFileFn(this);
       }
@@ -939,7 +942,7 @@
      * @function
      * @returns {number} from 0 to 1
      */
-    progress: function () {
+    progress: function() {
       if (this.error) {
         return 1;
       }
@@ -949,7 +952,7 @@
       }
       // Sum up progress across everything
       var bytesLoaded = 0;
-      each(this.chunks, function (c) {
+      each(this.chunks, function(c) {
         // get chunk progress relative to entire file
         bytesLoaded += c.progress() * (c.endByte - c.startByte);
       });
@@ -964,9 +967,9 @@
      * @function
      * @returns {boolean}
      */
-    isUploading: function () {
+    isUploading: function() {
       var uploading = false;
-      each(this.chunks, function (chunk) {
+      each(this.chunks, function(chunk) {
         if (chunk.status() === 'uploading') {
           uploading = true;
           return false;
@@ -980,9 +983,9 @@
      * @function
      * @returns {boolean}
      */
-    isComplete: function () {
+    isComplete: function() {
       var outstanding = false;
-      each(this.chunks, function (chunk) {
+      each(this.chunks, function(chunk) {
         var status = chunk.status();
         if (status === 'pending' || status === 'uploading' || status === 'reading' || chunk.preprocessState === 1 || chunk.readState === 1) {
           outstanding = true;
@@ -997,9 +1000,9 @@
      * @function
      * @returns {number}
      */
-    sizeUploaded: function () {
+    sizeUploaded: function() {
       var size = 0;
-      each(this.chunks, function (chunk) {
+      each(this.chunks, function(chunk) {
         size += chunk.sizeUploaded();
       });
       return size;
@@ -1011,7 +1014,7 @@
      * @function
      * @returns {number}
      */
-    timeRemaining: function () {
+    timeRemaining: function() {
       if (this.paused || this.error) {
         return 0;
       }
@@ -1030,7 +1033,7 @@
      * @function
      * @returns {string}
      */
-    getType: function () {
+    getType: function() {
       return this.file.type && this.file.type.split('/')[1];
     },
 
@@ -1039,7 +1042,7 @@
      * @function
      * @returns {string}
      */
-    getExtension: function () {
+    getExtension: function() {
       return this.name.substr((~-this.name.lastIndexOf(".") >>> 0) + 2).toLowerCase();
     }
   };
@@ -1054,7 +1057,7 @@
     var function_name = 'slice';
 
     if (fileObj.file.slice)
-      function_name =  'slice';
+      function_name = 'slice';
     else if (fileObj.file.mozSlice)
       function_name = 'mozSlice';
     else if (fileObj.file.webkitSlice)
@@ -1180,7 +1183,7 @@
      * @param event
      * @param {...} args arguments of a callback
      */
-    this.event = function (event, args) {
+    this.event = function(event, args) {
       args = Array.prototype.slice.call(arguments);
       args.unshift($);
       $.fileObj.chunkEvent.apply($.fileObj, args);
@@ -1191,7 +1194,7 @@
      */
     this.progressHandler = function(event) {
       if (event.lengthComputable) {
-        $.loaded = event.loaded ;
+        $.loaded = event.loaded;
         $.total = event.total;
       }
       $.event('progress', event);
@@ -1235,7 +1238,7 @@
         $.retries++;
         var retryInterval = $.flowObj.opts.chunkRetryInterval;
         if (retryInterval !== null) {
-          setTimeout(function () {
+          setTimeout(function() {
             $.send();
           }, retryInterval);
         } else {
@@ -1250,7 +1253,7 @@
      * Get params for a request
      * @function
      */
-    getParams: function () {
+    getParams: function() {
       return {
         flowChunkNumber: this.offset + 1,
         flowChunkSize: this.flowObj.opts.chunkSize,
@@ -1269,8 +1272,8 @@
      * @param params
      * @returns {string}
      */
-    getTarget: function(target, params){
-      if(target.indexOf('?') < 0) {
+    getTarget: function(target, params) {
+      if (target.indexOf('?') < 0) {
         target += '?';
       } else {
         target += '&';
@@ -1283,7 +1286,7 @@
      * been uploaded in a previous session
      * @function
      */
-    test: function () {
+    test: function() {
       // Set up request and listen for event
       this.xhr = new XMLHttpRequest();
       this.xhr.addEventListener("load", this.testHandler, false);
@@ -1297,7 +1300,7 @@
      * Finish preprocess state
      * @function
      */
-    preprocessFinished: function () {
+    preprocessFinished: function() {
       // Re-compute the endByte after the preprocess function to allow an
       // implementer of preprocess to set the fileObj size
       this.endByte = this.computeEndByte();
@@ -1310,7 +1313,7 @@
      * Finish read state
      * @function
      */
-    readFinished: function (bytes) {
+    readFinished: function(bytes) {
       this.readState = 2;
       this.bytes = bytes;
       this.send();
@@ -1321,7 +1324,7 @@
      * Uploads the actual data in a POST call
      * @function
      */
-    send: function () {
+    send: function() {
       var preprocess = this.flowObj.opts.preprocess;
       var read = this.flowObj.opts.readFileFn;
       if (typeof preprocess === 'function') {
@@ -1366,7 +1369,7 @@
      * Abort current xhr request
      * @function
      */
-    abort: function () {
+    abort: function() {
       // Abort and reset
       var xhr = this.xhr;
       this.xhr = null;
@@ -1380,7 +1383,7 @@
      * @function
      * @returns {string} 'pending', 'uploading', 'success', 'error'
      */
-    status: function (isTest) {
+    status: function(isTest) {
       if (this.readState === 1) {
         return 'reading';
       } else if (this.pendingRetry || this.preprocessState === 1) {
@@ -1396,7 +1399,7 @@
       } else {
         if (this.flowObj.opts.successStatuses.indexOf(this.xhr.status) > -1) {
           // HTTP 200, perfect
-		      // HTTP 202 Accepted - The request has been accepted for processing, but the processing has not been completed.
+          // HTTP 202 Accepted - The request has been accepted for processing, but the processing has not been completed.
           return 'success';
         } else if (this.flowObj.opts.permanentErrors.indexOf(this.xhr.status) > -1 ||
             !isTest && this.retries >= this.flowObj.opts.maxChunkRetries) {
@@ -1416,7 +1419,7 @@
      * @function
      * @returns {String}
      */
-    message: function () {
+    message: function() {
       return this.xhr ? this.xhr.responseText : '';
     },
 
@@ -1425,7 +1428,7 @@
      * @function
      * @returns {number}
      */
-    progress: function () {
+    progress: function() {
       if (this.pendingRetry) {
         return 0;
       }
@@ -1444,7 +1447,7 @@
      * @function
      * @returns {number}
      */
-    sizeUploaded: function () {
+    sizeUploaded: function() {
       var size = this.endByte - this.startByte;
       // can't return only chunk.loaded value, because it is bigger than chunk size
       if (this.status() !== 'success') {
@@ -1471,7 +1474,7 @@
       if (method === 'GET' || paramsMethod === 'octet') {
         // Add data from the query options
         var params = [];
-        each(query, function (v, k) {
+        each(query, function(v, k) {
           params.push([encodeURIComponent(k), encodeURIComponent(v)].join('='));
         });
         target = this.getTarget(target, params);
@@ -1479,7 +1482,7 @@
       } else {
         // Add data from the query options
         data = new FormData();
-        each(query, function (v, k) {
+        each(query, function(v, k) {
           data.append(k, v);
         });
         data.append(this.flowObj.opts.fileParameterName, blob, this.fileObj.file.name);
@@ -1489,9 +1492,13 @@
       this.xhr.withCredentials = this.flowObj.opts.withCredentials;
 
       // Add data from header options
-      each(evalOpts(this.flowObj.opts.headers, this.fileObj, this, isTest), function (v, k) {
+      each(evalOpts(this.flowObj.opts.headers, this.fileObj, this, isTest), function(v, k) {
         this.xhr.setRequestHeader(k, v);
       }, this);
+
+      this.xhr.setRequestHeader("Content-Range", "bytes " + this.startByte + "-" + (this.endByte - 1) + "/" + this.fileObj.size);
+      //this.xhr.setRequestHeader("Content-Disposition", "attachment");
+      //this.xhr.setRequestHeader("X-Session-ID", this.fileObj.uniqueIdentifier);
 
       return data;
     }
@@ -1545,7 +1552,7 @@
   function extend(dst, src) {
     each(arguments, function(obj) {
       if (obj !== dst) {
-        each(obj, function(value, key){
+        each(obj, function(value, key) {
           dst[key] = value;
         });
       }
@@ -1563,21 +1570,21 @@
    */
   function each(obj, callback, context) {
     if (!obj) {
-      return ;
+      return;
     }
     var key;
     // Is Array?
     // Array.isArray won't work, not only arrays can be iterated by index https://github.com/flowjs/ng-flow/issues/236#
-    if (typeof(obj.length) !== 'undefined') {
+    if (typeof (obj.length) !== 'undefined') {
       for (key = 0; key < obj.length; key++) {
         if (callback.call(context, obj[key], key) === false) {
-          return ;
+          return;
         }
       }
     } else {
       for (key in obj) {
         if (obj.hasOwnProperty(key) && callback.call(context, obj[key], key) === false) {
-          return ;
+          return;
         }
       }
     }
@@ -1602,7 +1609,7 @@
    */
   Flow.version = '<%= version %>';
 
-  if ( typeof module === "object" && module && typeof module.exports === "object" ) {
+  if (typeof module === "object" && module && typeof module.exports === "object") {
     // Expose Flow as module.exports in loaders that implement the Node
     // module pattern (including browserify). Do not create the global, since
     // the user will be storing it themselves locally, and globals are frowned
@@ -1619,8 +1626,8 @@
     // derived from file names, and Flow is normally delivered in a lowercase
     // file name. Do this after creating the global so that if an AMD module wants
     // to call noConflict to hide this version of Flow, it will work.
-    if ( typeof define === "function" && define.amd ) {
-      define( "flow", [], function () { return Flow; } );
+    if (typeof define === "function" && define.amd) {
+      define("flow", [], function() { return Flow; });
     }
   }
 })(window, document);
